@@ -1,4 +1,4 @@
-Collection of my homelab containers for laughs and giggles. This repos update regularly. 
+Collection of my homelab containers for laughs and giggles. This repo updates regularly. 
 
 TODO:
 1. Add my podman containers on this repo.
