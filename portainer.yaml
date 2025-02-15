@@ -1,0 +1,18 @@
+name: portainer
+services:
+    portainer-ce:
+        ports:
+            - 8000:8000
+            - 9443:9443
+        security_opt:
+            - label=disable
+        container_name: portainer
+        restart: always
+        volumes:
+            - /run/user/1000/podman/podman.sock:/var/run/docker.sock:Z
+            - portainer_data:/data
+        image: docker.io/portainer/portainer-ce
+volumes:
+    portainer_data:
+        external: true
+        name: portainer_data
