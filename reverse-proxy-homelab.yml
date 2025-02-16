@@ -45,6 +45,6 @@ services:
       - ./jellyfin/config:/config
       - ./jellyfin/tvshows:/data/tvshows
       - ./jellyfin/movies:/data/movies 
-      - ./jellyfin/media:/data/media
+      - /home/BahayFiles:/data/media
     restart: unless-stopped
 
