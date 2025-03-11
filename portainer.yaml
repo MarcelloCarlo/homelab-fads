@@ -6,6 +6,7 @@ services:
             - 9443:9443
         security_opt:
             - label=disable
+        priviledged: true
         container_name: portainer
         restart: always
         volumes:
