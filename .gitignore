@@ -3,3 +3,4 @@ hass/*
 jellyfin/*
 nextcloud/*
 mssql/*
+oraclesql/*
