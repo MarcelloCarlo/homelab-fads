@@ -1,0 +1,14 @@
+services:
+    express:
+        container_name: oraclesql
+        ports:
+            - 1521:1521
+            - 5500:5500
+        environment:
+        # run 'docker exec oraclesql ./setPassword.sh <your_password>' to change to the custom password
+            # - ORACLE_PWD=<password>
+            - ORACLE_CHARACTERSET=AL32UTF8
+        volumes:
+            - ./oraclesql/oradata:/opt/oracle/oradata
+            - ./oraclesql/backup:/opt/oracle/backup
+        image: container-registry.oracle.com/database/express:21.3.0-xe
