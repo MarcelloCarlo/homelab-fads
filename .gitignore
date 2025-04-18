@@ -4,3 +4,5 @@ jellyfin/*
 nextcloud/*
 mssql/*
 oraclesql/*
+mysql/*
+diun/*
