@@ -6,3 +6,5 @@ mssql/*
 oraclesql/*
 mysql/*
 diun/*
+jenkins-data/*
+jenkins-docker-certs/*
