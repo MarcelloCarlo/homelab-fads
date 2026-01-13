@@ -9,3 +9,6 @@ diun/*
 jenkins-data/*
 jenkins-docker-certs/*
 pihole/*
+
+# Kubernetes secrets
+k8s/secrets.env*

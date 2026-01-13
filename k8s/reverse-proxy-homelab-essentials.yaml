@@ -1,0 +1,341 @@
+# Nginx Proxy Manager
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-data
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nginx-letsencrypt
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxproxymanager
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginxproxymanager
+  template:
+    metadata:
+      labels:
+        app: nginxproxymanager
+    spec:
+      containers:
+      - name: nginxproxymanager
+        image: jc21/nginx-proxy-manager:latest
+        ports:
+        - containerPort: 80
+        - containerPort: 81
+        - containerPort: 443
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: letsencrypt
+          mountPath: /etc/letsencrypt
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nginx-data
+      - name: letsencrypt
+        persistentVolumeClaim:
+          claimName: nginx-letsencrypt
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginxproxymanager
+  namespace: homelab
+spec:
+  type: NodePort
+  selector:
+    app: nginxproxymanager
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    nodePort: 30080
+  - name: admin
+    port: 81
+    targetPort: 81
+    nodePort: 30081
+  - name: https
+    port: 443
+    targetPort: 443
+    nodePort: 30443
+---
+# Nextcloud
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nextcloud-config
+  namespace: homelab
+data:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Asia/Manila"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-appdata
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-data
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      containers:
+      - name: nextcloud
+        image: lscr.io/linuxserver/nextcloud:latest
+        envFrom:
+        - configMapRef:
+            name: nextcloud-config
+        volumeMounts:
+        - name: appdata
+          mountPath: /config
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: appdata
+        persistentVolumeClaim:
+          claimName: nextcloud-appdata
+      - name: data
+        persistentVolumeClaim:
+          claimName: nextcloud-data
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud
+  namespace: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app: nextcloud
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+---
+# Home Assistant
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homeassistant-config
+  namespace: homelab
+data:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Asia/Manila"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: homeassistant-config
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homeassistant
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homeassistant
+  template:
+    metadata:
+      labels:
+        app: homeassistant
+    spec:
+      containers:
+      - name: homeassistant
+        image: lscr.io/linuxserver/homeassistant:latest
+        envFrom:
+        - configMapRef:
+            name: homeassistant-config
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: homeassistant-config
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homeassistant
+  namespace: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app: homeassistant
+  ports:
+  - name: http
+    port: 8123
+    targetPort: 8123
+---
+# Jellyfin
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: jellyfin-config
+  namespace: homelab
+data:
+  PUID: "1000"
+  PGID: "1000"
+  TZ: "Asia/Manila"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-config
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-tvshows
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-movies
+  namespace: homelab
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: homelab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jellyfin
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      containers:
+      - name: jellyfin
+        image: lscr.io/linuxserver/jellyfin:latest
+        envFrom:
+        - configMapRef:
+            name: jellyfin-config
+        volumeMounts:
+        - name: config
+          mountPath: /config
+        - name: tvshows
+          mountPath: /data/tvshows
+        - name: movies
+          mountPath: /data/movies
+        - name: media
+          mountPath: /data/media
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: jellyfin-config
+      - name: tvshows
+        persistentVolumeClaim:
+          claimName: jellyfin-tvshows
+      - name: movies
+        persistentVolumeClaim:
+          claimName: jellyfin-movies
+      - name: media
+        hostPath:
+          path: /home/BahayFiles
+          type: Directory
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: homelab
+spec:
+  type: ClusterIP
+  selector:
+    app: jellyfin
+  ports:
+  - name: http
+    port: 8096
+    targetPort: 8096
