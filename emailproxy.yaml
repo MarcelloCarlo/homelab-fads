@@ -1,0 +1,14 @@
+services:
+  emailproxy:
+    image: blacktirion/email-oauth2-proxy-docker # ghcr.io optional. this is published on both Docker Hub and Github Container Repository
+    container_name: emailproxy
+    volumes:
+      - ./emailproxy/config:/config
+    ports:
+      - 1993:1993
+      - 1587:1587
+    environment:
+      LOGFILE: true
+      DEBUG: true
+      CACHE_STORE: /config/credstore.config
+      LOCAL_SERVER_AUTH: true #Optional

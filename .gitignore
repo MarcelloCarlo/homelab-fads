@@ -12,3 +12,5 @@ pihole/*
 
 # Kubernetes secrets
 k8s/secrets.env*
+emailproxy/config/emailproxy.config
+emailproxy/config/emailproxy.log
